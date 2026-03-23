@@ -1,0 +1,29 @@
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Output files
+output/
+uploads/
+*.mp4
+*.mp3
+*.wav
+*.json
+!presets/*.json
+
+# Presets (user-saved, not committed)
+presets/
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

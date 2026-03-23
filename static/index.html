@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YTPoop LLM Music Video Generator</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <h1>YTPoop LLM Music Video Generator</h1>
+    <p>GPU-rendered kinetic typography music videos with beat-synced effects</p>
+  </header>
+
+  <div class="layout">
+
+    <!-- ─── Sidebar ─── -->
+    <aside class="sidebar">
+
+      <!-- Audio -->
+      <details open>
+        <summary>Audio</summary>
+        <div class="panel">
+          <label>
+            Audio file (mp3, wav, flac)
+            <input type="file" id="audioFile" accept="audio/*">
+          </label>
+          <div class="info-box" id="audioInfo">Upload an audio file to begin.</div>
+        </div>
+      </details>
+
+      <!-- Color & Tone -->
+      <details open>
+        <summary>Color &amp; Tone</summary>
+        <div class="panel">
+          <label>
+            Palette preset
+            <select id="paletteSelect">
+              <option value="neon" selected>Neon</option>
+              <option value="pastel">Pastel</option>
+              <option value="monochrome">Monochrome</option>
+              <option value="cyberpunk">Cyberpunk</option>
+              <option value="vaporwave">Vaporwave</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+            <label>Primary 1 <input type="color" id="color1" value="#00ff41"></label>
+            <label>Primary 2 <input type="color" id="color2" value="#ff0064"></label>
+            <label>Primary 3 <input type="color" id="color3" value="#00c8ff"></label>
+            <label>Primary 4 <input type="color" id="color4" value="#ffff00"></label>
+          </div>
+        </div>
+      </details>
+
+      <!-- Segments -->
+      <details>
+        <summary>Segments</summary>
+        <div class="panel" id="segmentList">
+          <!-- Populated by JS -->
+        </div>
+      </details>
+
+      <!-- Effects -->
+      <details>
+        <summary>Effects</summary>
+        <div class="panel">
+          <label class="row-label"><input type="checkbox" id="fx_bloom" checked> Bloom</label>
+          <label class="row-label"><input type="checkbox" id="fx_scanlines" checked> Scanlines</label>
+          <label class="row-label"><input type="checkbox" id="fx_vhs_glitch" checked> VHS Glitch</label>
+          <label class="row-label"><input type="checkbox" id="fx_chromatic_aberration" checked> Chromatic Aberration</label>
+          <label class="row-label"><input type="checkbox" id="fx_vignette" checked> Vignette</label>
+          <label class="row-label"><input type="checkbox" id="fx_beat_flash" checked> Beat Flash</label>
+        </div>
+      </details>
+
+      <!-- Background -->
+      <details>
+        <summary>Background</summary>
+        <div class="panel">
+          <label>
+            Background image (optional)
+            <input type="file" id="bgImageFile" accept="image/*">
+          </label>
+          <label>
+            Background video (optional)
+            <input type="file" id="bgVideoFile" accept="video/*">
+          </label>
+          <label>
+            Opacity: <span id="bgOpacityVal">0.30</span>
+            <input type="range" id="bgOpacity" min="0" max="1" step="0.05" value="0.3">
+          </label>
+          <label>
+            Brightness: <span id="bgBrightnessVal">1.00</span>
+            <input type="range" id="bgBrightness" min="0.1" max="2.0" step="0.05" value="1.0">
+          </label>
+          <span style="font-size:.75em;color:var(--text-dim)">Brightness &lt;1 = darker, &gt;1 = brighter</span>
+        </div>
+      </details>
+
+      <!-- Content / Text -->
+      <details open>
+        <summary>Content / Text</summary>
+        <div class="panel">
+          <label style="font-size:.85em;">
+            Impact words (one per line, UPPERCASE)
+            <textarea id="customImpact" rows="4" placeholder="Leave empty = use defaults&#10;e.g.&#10;DRIFT&#10;SMOKE&#10;BASSLINE"></textarea>
+          </label>
+          <label style="font-size:.85em;">
+            Phrases (one per line)
+            <textarea id="customPhrases" rows="4" placeholder="Leave empty = use defaults&#10;e.g.&#10;racing at night&#10;dark neon glow"></textarea>
+          </label>
+          <label style="font-size:.85em;">
+            Tech lines (one per line)
+            <textarea id="customTech" rows="3" placeholder="Leave empty = use defaults&#10;e.g.&#10;BASS FREQ: 120Hz&#10;ENGINE RPM: 7500"></textarea>
+          </label>
+          <div style="display:flex;gap:6px;margin-top:4px;">
+            <button class="btn btn-sm" id="saveTextBtn" style="flex:1;">Save Text</button>
+            <button class="btn btn-sm" id="loadTextBtn" style="flex:1;">Load Text</button>
+            <button class="btn btn-sm btn-danger" id="clearTextBtn" style="flex:0.6;">Clear</button>
+          </div>
+          <div id="textSaveStatus" style="font-size:.75em;color:var(--text-dim);margin-top:2px;"></div>
+          <hr style="border-color:var(--border);margin:8px 0;">
+          <span style="font-size:.75em;color:var(--text-dim);">Or generate from lyrics via Ollama (optional):</span>
+          <label style="font-size:.85em;">
+            Lyrics
+            <textarea id="lyricsText" rows="3" placeholder="Paste lyrics here (optional)"></textarea>
+          </label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="text" id="songMood" placeholder="mood: dark, phonk, etc." style="flex:1;font-size:.85em;">
+            <button class="btn btn-sm" id="generateContentBtn">Generate (Ollama)</button>
+          </div>
+          <div class="info-box" id="contentStatus" style="margin-top:4px;font-size:.75em;"></div>
+        </div>
+      </details>
+
+      <!-- Output -->
+      <details>
+        <summary>Output</summary>
+        <div class="panel">
+          <label>
+            Resolution
+            <select id="resolutionSelect">
+              <option value="1920x1080" selected>1920 x 1080 (Full HD)</option>
+              <option value="2560x1440">2560 x 1440 (2K)</option>
+              <option value="3840x2160">3840 x 2160 (4K)</option>
+              <option value="1280x720">1280 x 720 (720p)</option>
+            </select>
+          </label>
+          <label>
+            FPS
+            <select id="fpsSelect">
+              <option value="24">24</option>
+              <option value="30" selected>30</option>
+              <option value="60">60</option>
+            </select>
+          </label>
+          <label>
+            Codec
+            <select id="codecSelect">
+              <option value="h264_nvenc" selected>H.264 NVENC (GPU)</option>
+              <option value="libx264">H.264 (CPU)</option>
+              <option value="hevc_nvenc">HEVC NVENC (GPU)</option>
+              <option value="libx265">HEVC (CPU)</option>
+            </select>
+          </label>
+        </div>
+      </details>
+
+      <!-- Presets -->
+      <details>
+        <summary>Presets</summary>
+        <div class="panel">
+          <div class="preset-bar">
+            <select id="presetSelect">
+              <option value="">-- select --</option>
+            </select>
+            <button class="btn btn-sm" id="presetLoad">Load</button>
+            <button class="btn btn-sm btn-danger" id="presetDelete">Del</button>
+          </div>
+          <button class="btn btn-sm" id="presetSave" style="margin-top:4px; width:100%;">Save current as preset</button>
+        </div>
+      </details>
+
+    </aside>
+
+    <!-- ─── Main area ─── -->
+    <main class="main">
+
+      <div style="text-align:center;">
+        <div style="font-size:.85em; color:var(--text-dim); margin-bottom:6px;">Color palette preview</div>
+        <div class="color-preview" id="colorPreviewStrip">
+          <div class="swatch" style="background:#00ff41"></div>
+          <div class="swatch" style="background:#ff0064"></div>
+          <div class="swatch" style="background:#00c8ff"></div>
+          <div class="swatch" style="background:#ffff00"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" id="previewBtn" disabled style="flex:1;">Preview 10s</button>
+        <button class="btn btn-primary" id="generateBtn" disabled style="flex:2;">Generate Full MV</button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner" id="progressBar"></div>
+        </div>
+        <div class="progress-status" id="progressStatus"></div>
+      </div>
+
+      <div class="output-links" id="outputLinks"></div>
+
+    </main>
+
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

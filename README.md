@@ -24,19 +24,29 @@
 
 - Python 3.10+
 - NVIDIA GPU + CUDA (หรือใช้ CPU แต่ช้ากว่า)
-- ffmpeg (ต้องอยู่ใน PATH)
+- ffmpeg (ติดตั้งอัตโนมัติผ่าน `install.bat`)
 - [Ollama](https://ollama.ai) + model `qwen2.5` (optional — สำหรับ generate lyrics)
 
-### Install dependencies
+---
 
-```bash
-pip install -r requirements.txt
+## Quick Start (Windows)
+
+```
+1. ดับเบิลคลิก  install.bat     ← ติดตั้งทุกอย่าง (ครั้งแรกครั้งเดียว)
+2. ดับเบิลคลิก  run_webui.bat   ← เปิดใช้งาน
+3. ดับเบิลคลิก  update.bat      ← อัปเดตเมื่อมีเวอร์ชันใหม่
 ```
 
-สำหรับ GPU (CUDA):
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
-```
+`install.bat` จะจัดการให้ทั้งหมด:
+- สร้าง `.venv` (Python virtual environment) แยกไม่ชนกับระบบ
+- ดาวน์โหลด ffmpeg portable มาไว้ในโฟลเดอร์โปรเจค (ไม่ต้อง set PATH เอง)
+- `pip install` ทุก dependency ใน `.venv`
+
+> **หมายเหตุ**: ถ้า torch ลงไม่สำเร็จ (ต้องการ CUDA version เฉพาะ) ให้รันเอง:
+> ```
+> .venv\Scripts\activate.bat
+> pip install torch --index-url https://download.pytorch.org/whl/cu121
+> ```
 
 ---
 
@@ -44,16 +54,14 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 
 ### Web UI (แนะนำ)
 
-```bash
-python app.py
-```
-หรือดับเบิ้ลคลิก `run_webui.bat`
-
-เปิด http://localhost:7861
+ดับเบิลคลิก `run_webui.bat` แล้วเปิด http://localhost:7861
 
 ### Command Line
 
 ```bash
+# Activate venv ก่อน
+.venv\Scripts\activate.bat
+
 # Step 1: วิเคราะห์เพลง
 python step1_analyze.py "song.mp3" -o analysis.json
 

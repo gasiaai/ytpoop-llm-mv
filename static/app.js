@@ -32,6 +32,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("bgOpacity").addEventListener("input", (e) => {
         document.getElementById("bgOpacityVal").textContent = parseFloat(e.target.value).toFixed(2);
     });
+    document.getElementById("bloomIntensity").addEventListener("input", (e) => {
+        document.getElementById("bloomIntensityVal").textContent = parseFloat(e.target.value).toFixed(2);
+    });
+    document.getElementById("beatFlashIntensity").addEventListener("input", (e) => {
+        document.getElementById("beatFlashIntensityVal").textContent = parseFloat(e.target.value).toFixed(2);
+    });
     document.getElementById("bgBrightness").addEventListener("input", (e) => {
         document.getElementById("bgBrightnessVal").textContent = parseFloat(e.target.value).toFixed(2);
     });
@@ -171,6 +177,8 @@ function readSettings() {
         const el = document.getElementById(`fx_${id}`);
         effects[id] = el ? el.checked : true;
     });
+    effects.bloom_intensity = parseFloat(document.getElementById("bloomIntensity").value);
+    effects.beat_flash_intensity = parseFloat(document.getElementById("beatFlashIntensity").value);
 
     // Background
     const bgOpacity = parseFloat(document.getElementById("bgOpacity").value);
@@ -234,6 +242,14 @@ function applySettings(s) {
         for (const [key, val] of Object.entries(s.effects)) {
             const el = document.getElementById(`fx_${key}`);
             if (el) el.checked = val;
+        }
+        if (s.effects.bloom_intensity !== undefined) {
+            document.getElementById("bloomIntensity").value = s.effects.bloom_intensity;
+            document.getElementById("bloomIntensityVal").textContent = s.effects.bloom_intensity.toFixed(2);
+        }
+        if (s.effects.beat_flash_intensity !== undefined) {
+            document.getElementById("beatFlashIntensity").value = s.effects.beat_flash_intensity;
+            document.getElementById("beatFlashIntensityVal").textContent = s.effects.beat_flash_intensity.toFixed(2);
         }
     }
 

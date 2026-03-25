@@ -758,7 +758,7 @@ def seg_pouring_text(f, fi, tl, ta, d, i):
 
 
 def seg_blank(f, fi, tl, ta, d, i):
-    """No text — just visualizer. Used when text overlays are disabled."""
+    """No text — just visualizer. Used when all segments are disabled."""
     bass = d["bass"][i]
     hue = (ta * 0.05) % 1
     f = draw_vis(f, d["spectrum"][i], bass, hue)
@@ -821,8 +821,7 @@ def build_timeline(dur, settings=None):
             w = weights.get(name, reg["default_weight"])
             segments.append((reg["fn"], w, reg["bg"]))
         if not segments:
-            # Fallback to defaults
-            segments = SEGMENTS
+            segments = [(seg_blank, 1.0, (0, 0, 0))]
     else:
         segments = SEGMENTS
 
@@ -1017,7 +1016,7 @@ def render(data, output_path, max_dur=None, settings=None, progress_cb=None):
     try:
         for fi in range(n_frames):
             ta = fi / fps
-            gf, bg = seg_kinetic, (10, 8, 22)
+            gf, bg = seg_blank, (0, 0, 0)
             ss, se = 0, duration
             for s, e, g, b in timeline:
                 if s <= ta < e:
@@ -1081,13 +1080,15 @@ def render(data, output_path, max_dur=None, settings=None, progress_cb=None):
             if fx_cfg.get("chromatic_aberration", True):
                 frame = fx_chroma(frame, bass_val * 4)
             if fx_cfg.get("bloom", True):
-                frame = fx_bloom(frame, bass_val * 0.4)
+                bloom_intensity = fx_cfg.get("bloom_intensity", 0.4)
+                frame = fx_bloom(frame, bass_val * bloom_intensity)
             if fx_cfg.get("scanlines", True):
                 frame = fx_scanlines(frame, 0.05 + rms_val * 0.03)
             if fx_cfg.get("vhs_glitch", True) and rms_val > 0.65:
                 frame = fx_vhs(frame, (rms_val - 0.65) * highs_val * 6)
             if fx_cfg.get("beat_flash", True) and is_beat:
-                frame = fx_flash(frame, bass_val * 0.4)
+                beat_flash_intensity = fx_cfg.get("beat_flash_intensity", 0.4)
+                frame = fx_flash(frame, bass_val * beat_flash_intensity)
 
             np.multiply(frame.permute(1, 2, 0).cpu().numpy(), 255, out=out_buf, casting='unsafe')
             proc.stdin.write(out_buf.tobytes())

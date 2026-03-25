@@ -247,7 +247,7 @@ def draw_vis(frame, spec, bass, hue):
     bar_w = max(2, total_w // n - 1)
     gap = 1
     cx = W // 2
-    cy = H - 50
+    cy = H
     max_h = int(H * 0.18)
     for i in range(n):
         v = spec[i]
@@ -263,7 +263,7 @@ def draw_vis(frame, spec, bass, hue):
         if x_l >= 0:
             frame[:, cy-h:cy, x_l:x_l+bar_w] = c.view(3, 1, 1)
     # Subtle baseline
-    frame = hline(frame, cy, 1, 255, 255, 255, 0.15)
+    frame = hline(frame, H - 1, 1, 255, 255, 255, 0.15)
     return frame
 
 

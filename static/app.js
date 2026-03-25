@@ -167,7 +167,7 @@ function readSettings() {
 
     // Effects
     const effects = {};
-    ["bloom","scanlines","vhs_glitch","chromatic_aberration","vignette","beat_flash"].forEach(id => {
+    ["text_overlays","bloom","scanlines","vhs_glitch","chromatic_aberration","vignette","beat_flash"].forEach(id => {
         const el = document.getElementById(`fx_${id}`);
         effects[id] = el ? el.checked : true;
     });

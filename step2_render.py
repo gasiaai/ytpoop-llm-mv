@@ -757,6 +757,14 @@ def seg_pouring_text(f, fi, tl, ta, d, i):
     return f
 
 
+def seg_blank(f, fi, tl, ta, d, i):
+    """No text — just visualizer. Used when text overlays are disabled."""
+    bass = d["bass"][i]
+    hue = (ta * 0.05) % 1
+    f = draw_vis(f, d["spectrum"][i], bass, hue)
+    return f
+
+
 # ---- Segment registry ----
 
 SEGMENT_REGISTRY = {
@@ -1043,7 +1051,8 @@ def render(data, output_path, max_dur=None, settings=None, progress_cb=None):
                   "_beat_set": data["_beat_set"], "_beats": recent_beats, "fps": fps,
                   "bc": bc_now, "ba": ba_now}
 
-            frame = gf(frame, fi, tl, ta, fd, ic)
+            text_on = fx_cfg.get("text_overlays", True)
+            frame = (gf if text_on else seg_blank)(frame, fi, tl, ta, fd, ic)
 
             # Resolve per-frame audio values (used by both pulse and post-fx)
             bass_val = fd["bass"][ic]
@@ -1051,8 +1060,8 @@ def render(data, output_path, max_dur=None, settings=None, progress_cb=None):
             highs_val = fd["highs"][ic]
             is_beat = ic in fd["_beat_set"]
 
-            # Universal beat pulse — fires on every beat across all segments
-            if ba_now < 0.35 and bass_val > 0.15:
+            # Universal beat pulse — fires on every beat (only when text is on)
+            if text_on and ba_now < 0.35 and bass_val > 0.15:
                 pulse_word = IMPACT_WORDS[bc_now % len(IMPACT_WORDS)]
                 pulse_hue = (ta * 0.12 + bass_val * 0.2) % 1
                 pc = hsv(pulse_hue + (bc_now * 0.13) % 1, 0.85, 1.0)

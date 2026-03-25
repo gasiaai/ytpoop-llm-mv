@@ -7,8 +7,10 @@ echo   YTPoop LLM Music Video Generator — Setup
 echo  ============================================
 echo.
 
+cd /d "%~dp0"
+
 :: ─── Check Python ───────────────────────────────────────────────────────────
-echo [1/3] Checking Python...
+echo [1/4] Checking Python...
 python --version >nul 2>&1
 if errorlevel 1 (
     echo.
@@ -23,19 +25,19 @@ for /f "tokens=2 delims= " %%v in ('python --version 2^>^&1') do echo  Found Pyt
 
 :: ─── Check/Install ffmpeg ───────────────────────────────────────────────────
 echo.
-echo [2/3] Checking ffmpeg...
+echo [2/4] Checking ffmpeg...
 
 :: Check if ffmpeg is already in PATH
 where ffmpeg >nul 2>&1
 if not errorlevel 1 (
     for /f "tokens=3" %%v in ('ffmpeg -version 2^>^&1 ^| findstr /i "ffmpeg version"') do echo  Found ffmpeg %%v ^(system PATH^)
-    goto :pip_install
+    goto :setup_venv
 )
 
 :: Check if we already downloaded it locally
 if exist "%~dp0ffmpeg\bin\ffmpeg.exe" (
     echo  Found ffmpeg ^(local^)
-    goto :pip_install
+    goto :setup_venv
 )
 
 echo  ffmpeg not found — downloading portable version...
@@ -85,16 +87,35 @@ if exist "%~dp0ffmpeg\bin\ffmpeg.exe" (
     exit /b 1
 )
 
+:: ─── Create venv ────────────────────────────────────────────────────────────
+:setup_venv
+echo.
+echo [3/4] Setting up Python virtual environment...
+
+if exist "%~dp0.venv\Scripts\python.exe" (
+    echo  .venv already exists
+) else (
+    echo  Creating .venv...
+    python -m venv "%~dp0.venv"
+    if errorlevel 1 (
+        echo  [ERROR] Failed to create virtual environment!
+        pause
+        exit /b 1
+    )
+    echo  .venv created
+)
+
 :: ─── Install Python packages ────────────────────────────────────────────────
-:pip_install
 echo.
-echo [3/3] Installing Python packages...
+echo [4/4] Installing Python packages in .venv...
 echo.
+call "%~dp0.venv\Scripts\activate.bat"
 pip install -r "%~dp0requirements.txt"
 if errorlevel 1 (
     echo.
     echo  [WARNING] Some packages may have failed to install.
-    echo  If torch fails, install manually:
+    echo  If torch fails, try manually:
+    echo    .venv\Scripts\activate.bat
     echo    pip install torch --index-url https://download.pytorch.org/whl/cu121
     echo.
 )

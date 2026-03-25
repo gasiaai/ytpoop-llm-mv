@@ -43,9 +43,16 @@ if errorlevel 1 (
 :: Restore local changes
 git stash pop >nul 2>&1
 
-:: Update Python packages
+:: Update Python packages in .venv
 echo [3/3] Updating Python packages...
-pip install -r "%~dp0requirements.txt" --quiet
+if exist "%~dp0.venv\Scripts\activate.bat" (
+    call "%~dp0.venv\Scripts\activate.bat"
+    pip install -r "%~dp0requirements.txt" --quiet
+) else (
+    echo  [WARNING] .venv not found — run install.bat first.
+    pip install -r "%~dp0requirements.txt" --quiet
+)
+
 if errorlevel 1 (
     echo  [WARNING] Some packages may have failed. Try running install.bat again.
 )

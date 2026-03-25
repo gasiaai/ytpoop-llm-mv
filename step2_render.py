@@ -908,11 +908,11 @@ def render(data, output_path, max_dur=None, settings=None, progress_cb=None):
     # Override content from settings (lyrics-generated)
     if settings and settings.get("content"):
         cc = settings["content"]
-        if cc.get("impact_words") and len(cc["impact_words"]) >= 5:
+        if cc.get("impact_words"):
             IMPACT_WORDS = cc["impact_words"]
-        if cc.get("phrases") and len(cc["phrases"]) >= 5:
+        if cc.get("phrases"):
             PHRASES = cc["phrases"]
-        if cc.get("tech_lines") and len(cc["tech_lines"]) >= 5:
+        if cc.get("tech_lines"):
             TECH_LINES = cc["tech_lines"]
 
     # Apply output settings

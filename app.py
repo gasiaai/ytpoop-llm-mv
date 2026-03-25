@@ -4,7 +4,7 @@ YTPoop LLM Music Video Generator — Web UI Backend
 FastAPI server: audio analysis, configurable GPU rendering, preset management.
 """
 
-import os, sys, json, threading, uuid, time
+import os, sys, json, threading, uuid, time, shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -20,6 +20,11 @@ PRESET_DIR = SCRIPT_DIR / "presets"
 UPLOAD_DIR = SCRIPT_DIR / "uploads"
 for d in [STATIC_DIR, OUTPUT_DIR, PRESET_DIR, UPLOAD_DIR]:
     d.mkdir(exist_ok=True)
+
+# Add local ffmpeg to PATH if available (from install.bat)
+_local_ffmpeg = SCRIPT_DIR / "ffmpeg" / "bin"
+if _local_ffmpeg.is_dir() and str(_local_ffmpeg) not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = str(_local_ffmpeg) + os.pathsep + os.environ.get("PATH", "")
 
 # Import project modules
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -336,6 +341,14 @@ async def render_status(task_id: str):
 if __name__ == "__main__":
     import webbrowser
     print("\n  YTPoop LLM Music Video Generator")
+    if shutil.which("ffmpeg") is None:
+        print("\n  [ERROR] ffmpeg not found!")
+        print("  This app requires ffmpeg to process audio and render video.")
+        print("  Download: https://github.com/BtbN/FFmpeg-Builds/releases")
+        print("  Extract it, then add the 'bin' folder to your system PATH.")
+        print("  After installing, restart this app.\n")
+        input("  Press Enter to exit...")
+        sys.exit(1)
     print("  http://localhost:7861\n")
     webbrowser.open("http://localhost:7861")
     uvicorn.run(app, host="0.0.0.0", port=7861, log_level="info")

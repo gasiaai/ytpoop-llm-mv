@@ -6,3 +6,4 @@ Pillow
 requests
 opencv-python
 python-multipart
+httpx

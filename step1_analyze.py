@@ -9,13 +9,26 @@ Usage:
   python step1_analyze.py "D:\\download\\Metallic Rebellion.mp3" -o analysis.json --fps 30
 """
 
-import sys, os, json, tempfile, subprocess, argparse, time
+import sys, os, json, tempfile, subprocess, argparse, time, shutil
 from pathlib import Path
 import numpy as np
 
 
+def _check_ffmpeg():
+    """Check if ffmpeg is available, raise clear error if not."""
+    if shutil.which("ffmpeg") is None:
+        raise FileNotFoundError(
+            "ffmpeg not found!\n"
+            "Please install ffmpeg and make sure it's in your PATH.\n"
+            "Download: https://ffmpeg.org/download.html\n"
+            "Windows: download from https://github.com/BtbN/FFmpeg-Builds/releases\n"
+            "  then add the 'bin' folder to your system PATH."
+        )
+
+
 def analyze(audio_path, fps=30):
     """Full audio analysis -> dict of per-frame data."""
+    _check_ffmpeg()
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".raw")
     tmp.close()
     sr = 44100
